@@ -1,10 +1,11 @@
 /* PartPay service worker — cache shell for offline use */
-const CACHE = "partpay-v1";
+const CACHE = "partpay-v2";
 const ASSETS = [
   "./",
   "./index.html",
   "./css/styles.css",
   "./js/app.js",
+  "./js/qrcode.min.js",
   "./manifest.json",
   "./favicon.svg",
   "./icons/icon-192.png",

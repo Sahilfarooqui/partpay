@@ -408,11 +408,58 @@ body {
   font-size: 0.9rem;
 }
 
-#qr-canvas {
-  display: block;
+#qr-box,
+.qr-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 264px;
+  height: 264px;
   margin: 0 auto;
+  padding: 12px;
   border-radius: 12px;
   background: #fff;
+  box-sizing: border-box;
+}
+
+#qr-box img,
+#qr-box canvas,
+#qr-box table {
+  display: block;
+  margin: 0 auto;
+}
+
+.part-qr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  margin: 0.75rem auto 0.35rem;
+  padding: 8px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid var(--border);
+  box-sizing: border-box;
+}
+
+.part-qr img,
+.part-qr canvas,
+.part-qr table {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.decide-btn {
+  margin-bottom: 0.35rem;
+}
+
+.decide-hint {
+  margin: 0 0 1rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  text-align: center;
 }
 
 .modal-hint {

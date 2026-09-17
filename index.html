@@ -16,7 +16,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js" defer></script>
 </head>
 <body>
   <div class="app">
@@ -56,6 +55,9 @@
               <button type="button" class="toggle active" data-mode="parts" id="mode-parts" aria-pressed="true">Number of parts</button>
               <button type="button" class="toggle" data-mode="max" id="mode-max" aria-pressed="false">Max per part</button>
             </div>
+
+            <button type="button" class="btn btn-secondary btn-block decide-btn" id="decide-for-me">Decide for me</button>
+            <p class="decide-hint">Picks a friendly part count from your total (~₹1,000–₹1,500 each)</p>
 
             <label class="field" id="parts-field">
               <span>Number of parts</span>
@@ -114,13 +116,14 @@
         <button type="button" class="icon-btn" data-close aria-label="Close">×</button>
       </header>
       <p class="modal-sub" id="qr-sub"></p>
-      <canvas id="qr-canvas" width="240" height="240"></canvas>
+      <div id="qr-box" class="qr-box"></div>
       <p class="modal-hint">Open any UPI app and scan this QR</p>
     </div>
   </div>
 
   <div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="js/qrcode.min.js" defer></script>
   <script src="js/app.js" defer></script>
 </body>
 </html>

@@ -18,7 +18,7 @@
   const upiHint = $("#upi-hint");
   const toastEl = $("#toast");
   const qrModal = $("#qr-modal");
-  const qrCanvas = $("#qr-canvas");
+  const qrBox = $("#qr-box");
   const qrSub = $("#qr-sub");
 
   let splitMode = "parts"; // "parts" | "max"
@@ -180,6 +180,7 @@
         '<span class="part-label">Part ' + (idx + 1) + "</span>" +
         '<span class="part-amount">' + formatINR(part.paise) + "</span>" +
         "</div>" +
+        '<div class="part-qr" data-upi="' + escapeAttr(upiUrl) + '" aria-label="QR for Part ' + (idx + 1) + '"></div>' +
         '<div class="part-actions">' +
         '<a class="btn btn-sm btn-upi" href="' + escapeAttr(upiUrl) + '">Pay with UPI</a>' +
         '<button type="button" class="btn btn-sm btn-secondary" data-action="copy">Copy link</button>' +
@@ -191,6 +192,11 @@
         "</label>";
 
       partsList.appendChild(li);
+    });
+
+    $$(".part-qr", partsList).forEach((el) => {
+      const url = el.dataset.upi;
+      if (url) makeQr(el, url, 104);
     });
 
     updateProgress();
@@ -208,27 +214,68 @@
       .replace(/</g, "&lt;");
   }
 
+  function makeQr(el, text, size) {
+    if (typeof QRCode === "undefined" || !el) return false;
+    el.innerHTML = "";
+    try {
+      new QRCode(el, {
+        text: text,
+        width: size,
+        height: size,
+        correctLevel: QRCode.CorrectLevel.M,
+        colorDark: "#1f1a17",
+        colorLight: "#ffffff",
+      });
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
   function showQr(upiUrl, label) {
     qrSub.textContent = label;
     qrModal.classList.remove("hidden");
-    if (typeof QRCode !== "undefined") {
-      QRCode.toCanvas(qrCanvas, upiUrl, {
-        width: 240,
-        margin: 2,
-        color: { dark: "#1f1a17", light: "#ffffff" },
-      }, (err) => {
-        if (err) showToast("Could not generate QR");
-      });
-    } else {
-      showToast("QR library not loaded");
+    if (!makeQr(qrBox, upiUrl, 240)) {
+      showToast(typeof QRCode === "undefined" ? "QR library not loaded" : "Could not generate QR");
     }
   }
 
   function closeQr() {
     qrModal.classList.add("hidden");
+    if (qrBox) qrBox.innerHTML = "";
   }
 
   /* ---------- Events ---------- */
+
+  function clamp(n, lo, hi) {
+    return Math.min(hi, Math.max(lo, n));
+  }
+
+  function decidePartsFromTotal(totalPaise) {
+    // Aim for ~₹1,000–₹1,500 per part (target ~₹1,500)
+    return clamp(Math.round(totalPaise / 150000), 2, 50);
+  }
+
+  $("#decide-for-me").addEventListener("click", () => {
+    const totalPaise = toPaise($("#total-amount").value);
+    if (totalPaise === null || totalPaise < 1) {
+      showToast("Enter a total amount first");
+      $("#total-amount").focus();
+      return;
+    }
+    const parts = decidePartsFromTotal(totalPaise);
+    // Cap so we never exceed total paise
+    const n = Math.min(parts, Math.max(2, totalPaise));
+    setMode("parts");
+    $("#num-parts").value = String(n);
+    showToast("Suggested " + n + " parts (~" + formatINR(Math.round(totalPaise / n)) + " each)");
+
+    const upiErr = validateUpi(upiInput.value);
+    if (!upiErr && totalPaise >= 1) {
+      // Auto-create plan when UPI + amount are valid
+      form.requestSubmit();
+    }
+  });
 
   modePartsBtn.addEventListener("click", () => setMode("parts"));
   modeMaxBtn.addEventListener("click", () => setMode("max"));
