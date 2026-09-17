@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#e85d4c" />
+  <meta name="description" content="PartPay — split any UPI payment into easy installments. Plan, pay part by part, and track what's done." />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="PartPay" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>PartPay — Pay in Parts with UPI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">₹</span>
+        <div>
+          <h1>PartPay</h1>
+          <p class="tagline">Split UPI payments into easy installments</p>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="card" id="planner">
+        <h2>Plan your payment</h2>
+        <form id="split-form" novalidate>
+          <label class="field">
+            <span>Receiver name <em>(optional)</em></span>
+            <input type="text" id="receiver-name" name="receiverName" placeholder="e.g. Priya Sharma" autocomplete="name" maxlength="80" />
+          </label>
+
+          <label class="field">
+            <span>UPI ID / VPA <strong>*</strong></span>
+            <input type="text" id="upi-id" name="upiId" placeholder="name@upi" inputmode="email" autocomplete="off" required maxlength="100" />
+            <span class="hint" id="upi-hint">Must include @ (like name@okaxis)</span>
+          </label>
+
+          <label class="field">
+            <span>Total amount (₹) <strong>*</strong></span>
+            <input type="number" id="total-amount" name="totalAmount" placeholder="5000" min="1" step="0.01" inputmode="decimal" required />
+          </label>
+
+          <fieldset class="split-mode">
+            <legend>How do you want to split?</legend>
+            <div class="toggle-row" role="group" aria-label="Split mode">
+              <button type="button" class="toggle active" data-mode="parts" id="mode-parts" aria-pressed="true">Number of parts</button>
+              <button type="button" class="toggle" data-mode="max" id="mode-max" aria-pressed="false">Max per part</button>
+            </div>
+
+            <label class="field" id="parts-field">
+              <span>Number of parts</span>
+              <input type="number" id="num-parts" name="numParts" value="3" min="2" max="50" step="1" inputmode="numeric" />
+            </label>
+
+            <label class="field hidden" id="max-field">
+              <span>Max amount per part (₹)</span>
+              <input type="number" id="max-per-part" name="maxPerPart" placeholder="e.g. 1500" min="1" step="0.01" inputmode="decimal" />
+            </label>
+          </fieldset>
+
+          <label class="field">
+            <span>Note on payment <em>(optional)</em></span>
+            <input type="text" id="note" name="note" placeholder="Installment" maxlength="50" />
+          </label>
+
+          <button type="submit" class="btn btn-primary btn-block">Create installment plan</button>
+        </form>
+      </section>
+
+      <section class="card hidden" id="plan-view">
+        <div class="plan-header">
+          <div>
+            <h2>Your plan</h2>
+            <p class="plan-meta" id="plan-meta"></p>
+          </div>
+          <button type="button" class="btn btn-ghost" id="edit-plan">Edit</button>
+        </div>
+
+        <div class="progress-wrap">
+          <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+          </div>
+          <p class="progress-label" id="progress-label">0 of 0 paid</p>
+        </div>
+
+        <ul class="parts-list" id="parts-list"></ul>
+
+        <div class="plan-actions">
+          <button type="button" class="btn btn-secondary" id="reset-done">Clear done marks</button>
+          <button type="button" class="btn btn-ghost danger" id="new-plan">Start over</button>
+        </div>
+      </section>
+
+      <p class="footer-note">PartPay runs fully on your phone — nothing is uploaded. Payments open in your UPI app.</p>
+    </main>
+  </div>
+
+  <!-- QR Modal -->
+  <div class="modal hidden" id="qr-modal" role="dialog" aria-modal="true" aria-labelledby="qr-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-sheet">
+      <header class="modal-header">
+        <h3 id="qr-title">Scan to pay</h3>
+        <button type="button" class="icon-btn" data-close aria-label="Close">×</button>
+      </header>
+      <p class="modal-sub" id="qr-sub"></p>
+      <canvas id="qr-canvas" width="240" height="240"></canvas>
+      <p class="modal-hint">Open any UPI app and scan this QR</p>
+    </div>
+  </div>
+
+  <div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/app.js" defer></script>
+</body>
+</html>
