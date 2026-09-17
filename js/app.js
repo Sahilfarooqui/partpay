@@ -280,6 +280,30 @@
   modePartsBtn.addEventListener("click", () => setMode("parts"));
   modeMaxBtn.addEventListener("click", () => setMode("max"));
 
+  const maxInput = $("#max-per-part");
+  const maxChips = $("#max-chips");
+
+  function syncMaxChips() {
+    if (!maxChips) return;
+    const val = Number(maxInput.value);
+    $$(".chip", maxChips).forEach((chip) => {
+      const n = Number(chip.dataset.max);
+      chip.classList.toggle("active", Number.isFinite(val) && val === n);
+    });
+  }
+
+  if (maxChips) {
+    maxChips.addEventListener("click", (e) => {
+      const chip = e.target.closest(".chip");
+      if (!chip) return;
+      maxInput.value = chip.dataset.max;
+      syncMaxChips();
+      maxInput.focus();
+    });
+  }
+
+  maxInput.addEventListener("input", syncMaxChips);
+
   upiInput.addEventListener("input", () => {
     upiInput.classList.remove("invalid");
     upiHint.textContent = "Must include @ (like name@okaxis)";
@@ -408,6 +432,7 @@
     if (currentPlan.mode === "max") {
       const max = Math.max(...currentPlan.parts.map((p) => p.paise));
       $("#max-per-part").value = (max / 100).toString();
+      if (typeof syncMaxChips === "function") syncMaxChips();
     } else {
       $("#num-parts").value = String(currentPlan.parts.length);
     }

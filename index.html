@@ -64,10 +64,16 @@
               <input type="number" id="num-parts" name="numParts" value="3" min="2" max="50" step="1" inputmode="numeric" />
             </label>
 
-            <label class="field hidden" id="max-field">
+            <div class="field hidden" id="max-field">
               <span>Max amount per part (₹)</span>
-              <input type="number" id="max-per-part" name="maxPerPart" placeholder="e.g. 1500" min="1" step="0.01" inputmode="decimal" />
-            </label>
+              <div class="chip-row" id="max-chips" role="group" aria-label="Quick max amounts">
+                <button type="button" class="chip" data-max="500">₹500</button>
+                <button type="button" class="chip" data-max="1000">₹1,000</button>
+                <button type="button" class="chip" data-max="1500">₹1,500</button>
+                <button type="button" class="chip" data-max="1999">₹1,999</button>
+              </div>
+              <input type="number" id="max-per-part" name="maxPerPart" placeholder="Or enter custom amount" min="1" step="0.01" inputmode="decimal" />
+            </div>
           </fieldset>
 
           <label class="field">

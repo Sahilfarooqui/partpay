@@ -1,5 +1,5 @@
 /* PartPay service worker — cache shell for offline use */
-const CACHE = "partpay-v2";
+const CACHE = "partpay-v3";
 const ASSETS = [
   "./",
   "./index.html",

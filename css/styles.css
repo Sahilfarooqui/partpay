@@ -494,3 +494,35 @@ body {
     margin: 1rem;
   }
 }
+
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.55rem;
+}
+
+.chip {
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.chip:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
