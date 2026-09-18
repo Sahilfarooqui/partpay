@@ -526,3 +526,20 @@ body {
   border-color: var(--accent);
   color: #fff;
 }
+
+
+.part-card.locked {
+  opacity: 0.72;
+}
+
+.part-note {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.part-card.done .part-note {
+  color: var(--accent);
+  font-weight: 600;
+}

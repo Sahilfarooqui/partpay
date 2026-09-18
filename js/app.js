@@ -186,28 +186,41 @@
         tn: partNote(idx),
       });
 
+      // Only the next unpaid part can reveal its QR — avoids all codes on one screen.
+      const firstOpen = currentPlan.parts.findIndex((p) => !p.done);
+      const isNext = idx === firstOpen;
+      const isLocked = !part.done && !isNext;
+
+      let actions;
+      if (part.done) {
+        actions =
+          '<p class="part-note">Paid</p>';
+      } else if (isLocked) {
+        actions =
+          '<p class="part-note">Pay earlier parts first — QR unlocks one at a time</p>';
+      } else {
+        actions =
+          '<div class="part-actions">' +
+          '<a class="btn btn-sm btn-upi" href="' + escapeAttr(upiUrl) + '">Pay with UPI</a>' +
+          '<button type="button" class="btn btn-sm btn-secondary" data-action="copy">Copy link</button>' +
+          '<button type="button" class="btn btn-sm btn-primary" data-action="qr">Show QR</button>' +
+          "</div>" +
+          '<p class="part-note">QR opens alone so it is not sitting with the others</p>';
+      }
+
       li.innerHTML =
         '<div class="part-top">' +
-        '<span class="part-label">Part ' + (idx + 1) + "</span>" +
+        '<span class="part-label">Part ' + (idx + 1) + (isNext && !part.done ? " · next" : "") + "</span>" +
         '<span class="part-amount">' + formatINR(part.paise) + "</span>" +
         "</div>" +
-        '<div class="part-qr" data-upi="' + escapeAttr(upiUrl) + '" aria-label="QR for Part ' + (idx + 1) + '"></div>' +
-        '<div class="part-actions">' +
-        '<a class="btn btn-sm btn-upi" href="' + escapeAttr(upiUrl) + '">Pay with UPI</a>' +
-        '<button type="button" class="btn btn-sm btn-secondary" data-action="copy">Copy link</button>' +
-        '<button type="button" class="btn btn-sm btn-ghost" data-action="qr">Show QR</button>' +
-        "</div>" +
+        actions +
         '<label class="done-toggle">' +
         '<input type="checkbox" data-action="done"' + (part.done ? " checked" : "") + " />" +
         "<span>Mark as paid</span>" +
         "</label>";
 
+      if (isLocked) li.classList.add("locked");
       partsList.appendChild(li);
-    });
-
-    $$(".part-qr", partsList).forEach((el) => {
-      const url = el.dataset.upi;
-      if (url) makeQr(el, url, 104);
     });
 
     updateProgress();
@@ -416,6 +429,11 @@
       );
     } else if (action === "qr") {
       e.preventDefault();
+      const firstOpen = currentPlan.parts.findIndex((p) => !p.done);
+      if (idx !== firstOpen) {
+        showToast("Pay earlier parts first — only one QR at a time");
+        return;
+      }
       showQr(upiUrl, "Part " + (idx + 1) + " · " + formatINR(part.paise));
     } else if (action === "done") {
       // handled by change
@@ -428,9 +446,9 @@
     const card = input.closest(".part-card");
     const idx = parseInt(card.dataset.index, 10);
     currentPlan.parts[idx].done = input.checked;
-    card.classList.toggle("done", input.checked);
     savePlan();
-    updateProgress();
+    closeQr();
+    renderPlan(); // unlock the next part's QR only
   });
 
   $("#edit-plan").addEventListener("click", () => {
