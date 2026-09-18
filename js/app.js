@@ -119,8 +119,19 @@
   function validateUpi(v) {
     const s = (v || "").trim();
     if (!s) return "UPI ID is required";
-    if (!s.includes("@")) return "UPI ID must contain @";
     if (/\s/.test(s)) return "UPI ID cannot have spaces";
+
+    // UPI VPA: name@handle — handle has no dots (unlike email domains).
+    // Rejects name@gmail.com while allowing @ybl @okaxis @paytm etc.
+    const m = /^([a-zA-Z0-9._-]{2,256})@([a-zA-Z0-9]{2,64})$/.exec(s);
+    if (!m) {
+      return "Enter a UPI ID like name@ybl or name@okaxis — not an email";
+    }
+    const handle = m[2].toLowerCase();
+    const emailLike = /^(gmail|googlemail|yahoo|ymail|outlook|hotmail|live|msn|icloud|me|protonmail|proton|rediffmail|aol|zoho)$/;
+    if (emailLike.test(handle)) {
+      return "That looks like an email. Use your UPI ID (name@ybl, name@okaxis, …)";
+    }
     return null;
   }
 
@@ -306,7 +317,7 @@
 
   upiInput.addEventListener("input", () => {
     upiInput.classList.remove("invalid");
-    upiHint.textContent = "Must include @ (like name@okaxis)";
+    upiHint.textContent = "UPI ID only — e.g. name@ybl, name@okaxis, name@paytm (not Gmail)";
     upiHint.classList.remove("error");
   });
 
